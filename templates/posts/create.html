@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Nueva publicación · FoodGram{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-display text-gradient">Nueva publicación</h1>
+    <p class="text-sm text-ink-400 mt-1">Comparte lo que estás comiendo 🍽️</p>
+  </div>
+
+  <div class="fg-card p-6 animate-fade-in">
+    <form method="post" enctype="multipart/form-data" novalidate id="post-form">
+      {% csrf_token %}
+
+      <!-- Image upload -->
+      <div class="mb-5">
+        <label class="block text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">
+          Foto del plato <span class="text-red-400">*</span>
+        </label>
+        <div id="drop-zone"
+             class="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-surface-600 hover:border-brand-500 transition cursor-pointer overflow-hidden"
+             style="min-height:240px; background:#0d1117;"
+             onclick="document.getElementById('id_image').click()">
+          <div id="upload-placeholder" class="flex flex-col items-center gap-2 p-6">
+            <i data-lucide="image-plus" class="w-12 h-12 text-ink-500"></i>
+            <p class="text-sm text-ink-400 text-center">Haz clic o arrastra una imagen aquí</p>
+            <p class="text-xs text-ink-500">JPG, PNG · Máximo 10 MB</p>
+          </div>
+          <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
+          <input type="file" name="image" id="id_image" accept="image/*" class="hidden" required />
+        </div>
+        {% if form.image.errors %}
+          {% for error in form.image.errors %}<p class="text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Food name -->
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">
+          Nombre del plato <span class="text-red-400">*</span>
+        </label>
+        <input type="text" name="food_name" value="{{ form.food_name.value|default:'' }}"
+               class="fg-input {% if form.food_name.errors %}error{% endif %}"
+               placeholder="¿Cómo se llama este plato?" required />
+        {% for error in form.food_name.errors %}<p class="text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
+      </div>
+
+      <!-- Caption -->
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">
+          Descripción
+        </label>
+        <textarea name="caption" rows="3"
+                  class="fg-input resize-none"
+                  placeholder="Cuéntanos sobre este plato, la receta, dónde lo probaste...">{{ form.caption.value|default:'' }}</textarea>
+        {% for error in form.caption.errors %}<p class="text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
+      </div>
+
+      <!-- Row: location + category -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">
+            Ubicación
+          </label>
+          <div class="relative">
+            <i data-lucide="map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-500 pointer-events-none"></i>
+            <input type="text" name="location" value="{{ form.location.value|default:'' }}"
+                   class="fg-input pl-9"
+                   placeholder="Restaurante, ciudad..." />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">
+            Categoría
+          </label>
+          <select name="category" class="fg-input appearance-none cursor-pointer">
+            <option value="">Sin categoría</option>
+            {% for cat in form.category.field.queryset %}
+            <option value="{{ cat.pk }}" {% if form.category.value == cat.pk|stringformat:"s" %}selected{% endif %}>
+              {{ cat.emoji }} {{ cat.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between gap-3 pt-4 border-t border-surface-700">
+        <a href="{% url 'feed:home' %}" class="fg-btn fg-btn-ghost text-sm">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Cancelar
+        </a>
+        <button type="submit" class="fg-btn fg-btn-primary text-sm px-6" id="submit-btn">
+          <i data-lucide="send" class="w-4 h-4"></i> Publicar
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const imageInput = document.getElementById('id_image');
+const preview = document.getElementById('image-preview');
+const placeholder = document.getElementById('upload-placeholder');
+const dropZone = document.getElementById('drop-zone');
+
+imageInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) showPreview(file);
+});
+
+// Drag & drop
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.style.borderColor = '#3b82f6';
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.style.borderColor = '';
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    imageInput.files = e.dataTransfer.files;
+    showPreview(file);
+  }
+});
+
+function showPreview(file) {
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    preview.src = ev.target.result;
+    preview.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+// Submit feedback
+document.getElementById('post-form').addEventListener('submit', () => {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg> Publicando...';
+});
+</script>
+{% endblock %}
