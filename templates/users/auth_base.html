@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}FoodGram{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"DM Serif Display"', 'Georgia', 'serif'],
+            body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #070b12; color: #f1f5f9; min-height: 100vh; }
+    .fg-input {
+      width: 100%; background: #161c27; border: 1px solid #1e2735; border-radius: 0.5rem;
+      padding: 0.625rem 0.875rem; color: #f1f5f9; font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    .fg-input::placeholder { color: #475569; }
+    .fg-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .fg-btn-primary {
+      width: 100%; background: #3b82f6; color: white; border: none; border-radius: 0.5rem;
+      padding: 0.75rem; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .fg-btn-primary:hover { background: #2563eb; box-shadow: 0 0 20px rgba(59,130,246,0.4); }
+    .text-gradient { background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .error-msg { color: #f87171; font-size: 0.75rem; margin-top: 0.25rem; }
+    /* Ambient glow */
+    .glow-bg::before {
+      content: '';
+      position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="glow-bg flex items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-sm animate-fade-in" style="animation: fadeIn 0.4s ease forwards;">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <a href="/" class="inline-block">
+        <h1 class="text-4xl font-display text-gradient">FoodGram</h1>
+      </a>
+      <p class="text-sm text-slate-500 mt-1">Comparte lo que comes 🍽️</p>
+    </div>
+
+    <!-- Card -->
+    <div style="background:#0d1117; border:1px solid #1e2735; border-radius:0.875rem; padding:2rem;">
+      {% if messages %}
+        {% for message in messages %}
+        <div class="mb-4 px-4 py-3 rounded-lg text-sm
+          {% if message.tags == 'error' %}bg-red-950 border border-red-800 text-red-300
+          {% elif message.tags == 'success' %}bg-green-950 border border-green-800 text-green-300
+          {% else %}bg-blue-950 border border-blue-800 text-blue-300{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block auth_content %}{% endblock %}
+    </div>
+
+    <!-- Footer links -->
+    <div class="text-center mt-6 text-sm text-slate-500">
+      {% block auth_footer %}{% endblock %}
+    </div>
+  </div>
+
+  <style>
+    @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+  <script>document.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
+</body>
+</html>

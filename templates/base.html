@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}FoodGram{% endblock %}</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Primary dark palette
+            surface: {
+              950: '#070b12',
+              900: '#0d1117',
+              800: '#161c27',
+              700: '#1e2735',
+              600: '#26334a',
+            },
+            // Blue accent palette
+            brand: {
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              glow: 'rgba(59,130,246,0.35)',
+            },
+            // Neutral text
+            ink: {
+              100: '#f1f5f9',
+              200: '#cbd5e1',
+              300: '#94a3b8',
+              400: '#64748b',
+              500: '#475569',
+            },
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', 'Georgia', 'serif'],
+            body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'glow-sm': '0 0 12px rgba(59,130,246,0.25)',
+            'glow': '0 0 24px rgba(59,130,246,0.35)',
+            'glow-lg': '0 0 48px rgba(59,130,246,0.4)',
+            'card': '0 4px 24px rgba(0,0,0,0.4)',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease forwards',
+            'slide-up': 'slideUp 0.35s ease forwards',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+            slideUp: { '0%': { opacity: 0, transform: 'translateY(12px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background-color: #070b12;
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #1e2735; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+    /* Input base styles */
+    .fg-input {
+      width: 100%;
+      background: #161c27;
+      border: 1px solid #1e2735;
+      border-radius: 0.5rem;
+      padding: 0.625rem 0.875rem;
+      color: #f1f5f9;
+      font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .fg-input::placeholder { color: #475569; }
+    .fg-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .fg-input.error { border-color: #ef4444; }
+
+    /* Card */
+    .fg-card {
+      background: #0d1117;
+      border: 1px solid #1e2735;
+      border-radius: 0.75rem;
+    }
+
+    /* Button primary */
+    .fg-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .fg-btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .fg-btn-primary:hover { background: #2563eb; box-shadow: 0 0 20px rgba(59,130,246,0.4); }
+    .fg-btn-ghost {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid #1e2735;
+    }
+    .fg-btn-ghost:hover { background: #161c27; color: #f1f5f9; border-color: #26334a; }
+    .fg-btn-danger {
+      background: transparent;
+      color: #f87171;
+      border: 1px solid #450a0a;
+    }
+    .fg-btn-danger:hover { background: #450a0a; }
+
+    /* Nav active */
+    .nav-link { transition: color 0.2s; }
+    .nav-link:hover { color: #60a5fa; }
+    .nav-link.active { color: #60a5fa; }
+
+    /* Post card hover */
+    .post-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .post-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+
+    /* Avatar ring */
+    .avatar-ring { border: 2px solid transparent; background: linear-gradient(#070b12,#070b12) padding-box, linear-gradient(135deg,#3b82f6,#8b5cf6) border-box; }
+
+    /* Gradient text */
+    .text-gradient { background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* Toast messages */
+    .fg-toast {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .fg-toast-item {
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      animation: slideUp 0.35s ease forwards;
+      pointer-events: all;
+      max-width: 340px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
+    .fg-toast-success { background: #052e16; border: 1px solid #166534; color: #bbf7d0; }
+    .fg-toast-error   { background: #450a0a; border: 1px solid #991b1b; color: #fecaca; }
+    .fg-toast-info    { background: #0c1a3a; border: 1px solid #1e40af; color: #bfdbfe; }
+    .fg-toast-warning { background: #422006; border: 1px solid #92400e; color: #fde68a; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ── Navbar ── -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- ── Toast messages ── -->
+  {% if messages %}
+  <div class="fg-toast" id="toast-container">
+    {% for message in messages %}
+    <div class="fg-toast-item fg-toast-{{ message.tags }}" onclick="this.remove()">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Main content ── -->
+  <main class="pt-16">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Auto-dismiss toasts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const toasts = document.querySelectorAll('.fg-toast-item');
+      toasts.forEach(t => {
+        setTimeout(() => {
+          t.style.opacity = '0';
+          t.style.transform = 'translateX(100%)';
+          t.style.transition = 'all 0.4s ease';
+          setTimeout(() => t.remove(), 400);
+        }, 4000);
+      });
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
