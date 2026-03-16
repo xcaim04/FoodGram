@@ -1,5 +1,7 @@
 # FoodGram
 
+<img width="1400" height="729" alt="image" src="https://github.com/user-attachments/assets/b9ee7b38-f6d5-45d0-9acf-842859771726" />
+
 Red social minimalista para compartir comida, construida con Django + TailwindCSS + PostgreSQL.
 
 ## Stack
@@ -145,15 +147,3 @@ Abrir: [http://localhost:8000](http://localhost:8000)
 | View (Template) | `templates/**/*.html` |
 | Controller (View) | `apps/*/views.py` |
 
-## Historial de commits
-
-El repositorio tiene commits organizados por etapas:
-1. `init: estructura base del proyecto`
-2. `feat: modelo User personalizado con email como PK`
-3. `feat: app posts con modelos Post, Like, Comment, Category`
-4. `feat: app feed con vistas home y explore`
-5. `feat: templates base, navbar y autenticación`
-6. `feat: templates de feed, posts y perfil de usuario`
-7. `feat: dashboard de usuario (posts + configuración)`
-8. `feat: fixtures de categorías`
-9. `docs: README con instrucciones de instalación`
