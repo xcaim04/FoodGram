@@ -1,4 +1,4 @@
-# 🍽️ FoodGram
+# FoodGram
 
 Red social minimalista para compartir comida, construida con Django + TailwindCSS + PostgreSQL.
 
