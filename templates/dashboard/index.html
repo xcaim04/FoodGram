@@ -1,0 +1,128 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Dashboard · FoodGram{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Stats row -->
+<div class="grid grid-cols-3 gap-3 mb-6">
+  <div class="fg-card p-4 text-center">
+    <p class="text-2xl font-bold text-ink-100">{{ posts.count }}</p>
+    <p class="text-xs text-ink-400 mt-0.5">publicaciones</p>
+  </div>
+  <div class="fg-card p-4 text-center">
+    <p class="text-2xl font-bold text-ink-100">{{ user.followers_count }}</p>
+    <p class="text-xs text-ink-400 mt-0.5">seguidores</p>
+  </div>
+  <div class="fg-card p-4 text-center">
+    <p class="text-2xl font-bold text-ink-100">{{ user.following_count }}</p>
+    <p class="text-xs text-ink-400 mt-0.5">siguiendo</p>
+  </div>
+</div>
+
+<!-- Posts list -->
+<div class="fg-card overflow-hidden">
+  <div class="px-5 py-4 border-b border-surface-700 flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-ink-200">Mis publicaciones</h2>
+    <a href="{% url 'posts:create' %}" class="text-xs text-brand-400 hover:text-brand-300 transition flex items-center gap-1">
+      <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nueva
+    </a>
+  </div>
+
+  {% if posts %}
+    <div class="divide-y divide-surface-700">
+      {% for post in posts %}
+      <div class="flex items-center gap-4 px-5 py-4 hover:bg-surface-800 transition group">
+
+        <!-- Thumbnail -->
+        <a href="{% url 'posts:detail' post.pk %}" class="flex-shrink-0">
+          <img src="{{ post.image.url }}" alt="{{ post.food_name }}"
+               class="w-14 h-14 rounded-lg object-cover border border-surface-700 group-hover:border-brand-500 transition" />
+        </a>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <a href="{% url 'posts:detail' post.pk %}"
+             class="text-sm font-semibold text-ink-100 hover:text-brand-400 transition truncate block">
+            {{ post.food_name }}
+          </a>
+          <div class="flex items-center gap-3 mt-1">
+            {% if post.category %}
+              <span class="text-xs text-ink-400">{{ post.category.emoji }} {{ post.category.name }}</span>
+            {% endif %}
+            {% if post.location %}
+              <span class="text-xs text-ink-500 flex items-center gap-0.5">
+                <i data-lucide="map-pin" class="w-3 h-3"></i> {{ post.location|truncatechars:25 }}
+              </span>
+            {% endif %}
+          </div>
+          <p class="text-xs text-ink-500 mt-1">{{ post.created_at|timesince }} atrás</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="hidden sm:flex items-center gap-4 flex-shrink-0 text-xs text-ink-400">
+          <span class="flex items-center gap-1">
+            <i data-lucide="heart" class="w-3.5 h-3.5"></i> {{ post.likes_count }}
+          </span>
+          <span class="flex items-center gap-1">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> {{ post.comments_count }}
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <a href="{% url 'posts:edit' post.pk %}"
+             class="p-2 rounded-lg text-ink-500 hover:bg-surface-700 hover:text-ink-100 transition">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+          </a>
+          <button onclick="openDeleteModal({{ post.pk }}, '{{ post.food_name|escapejs }}')"
+                  class="p-2 rounded-lg text-ink-500 hover:bg-red-950 hover:text-red-400 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="p-16 text-center">
+      <i data-lucide="camera-off" class="w-12 h-12 text-ink-600 mx-auto mb-3"></i>
+      <p class="text-sm text-ink-400 mb-4">Aún no has publicado nada.</p>
+      <a href="{% url 'posts:create' %}" class="fg-btn fg-btn-primary text-sm inline-flex">
+        <i data-lucide="plus" class="w-4 h-4"></i> Crear primera publicación
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Delete modal -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.7);"
+     onclick="if(event.target===this) closeDeleteModal()">
+  <div class="fg-card p-6 max-w-sm w-full animate-slide-up">
+    <h3 class="text-lg font-semibold text-ink-100 mb-1">¿Eliminar publicación?</h3>
+    <p class="text-sm text-ink-400 mb-1">Vas a eliminar:</p>
+    <p class="text-sm font-semibold text-ink-200 mb-5" id="delete-post-name">–</p>
+    <p class="text-xs text-ink-500 mb-6">Esta acción no se puede deshacer.</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="fg-btn fg-btn-ghost flex-1 text-sm">Cancelar</button>
+      <form id="delete-form" method="post" class="flex-1">
+        {% csrf_token %}
+        <button type="submit" class="fg-btn fg-btn-danger w-full text-sm">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openDeleteModal(postId, postName) {
+  document.getElementById('delete-post-name').textContent = postName;
+  document.getElementById('delete-form').action = `/posts/${postId}/delete/`;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

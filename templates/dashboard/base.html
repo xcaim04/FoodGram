@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Dashboard header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-display text-gradient">Dashboard</h1>
+      <p class="text-sm text-ink-400 mt-0.5">Bienvenido, @{{ user.username }}</p>
+    </div>
+    <a href="{% url 'posts:create' %}" class="fg-btn fg-btn-primary text-sm">
+      <i data-lucide="plus" class="w-4 h-4"></i> Nueva publicación
+    </a>
+  </div>
+
+  <div class="flex gap-6">
+
+    <!-- Sidebar nav -->
+    <aside class="w-48 flex-shrink-0">
+      <nav class="flex flex-col gap-1">
+        <a href="{% url 'users:dashboard' %}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition
+                  {% if section == 'posts' %}bg-brand-600 text-white{% else %}text-ink-300 hover:bg-surface-800 hover:text-ink-100{% endif %}">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Mis publicaciones
+        </a>
+        <a href="{% url 'users:profile' user.username %}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-300 hover:bg-surface-800 hover:text-ink-100 transition">
+          <i data-lucide="user" class="w-4 h-4"></i> Mi perfil
+        </a>
+        <a href="{% url 'users:dashboard_settings' %}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition
+                  {% if section == 'settings' %}bg-brand-600 text-white{% else %}text-ink-300 hover:bg-surface-800 hover:text-ink-100{% endif %}">
+          <i data-lucide="settings" class="w-4 h-4"></i> Configuración
+        </a>
+        <hr class="border-surface-700 my-2" />
+        <form method="post" action="{% url 'users:logout' %}">
+          {% csrf_token %}
+          <button type="submit"
+                  class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-950 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+          </button>
+        </form>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0">
+      {% block dashboard_content %}{% endblock %}
+    </main>
+
+  </div>
+</div>
+{% endblock %}
